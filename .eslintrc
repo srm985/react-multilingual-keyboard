@@ -6,6 +6,18 @@
     "extends": "airbnb",
     "parser": "babel-eslint",
     "rules": {
+        "array-bracket-newline": [
+            "error",
+            {
+                "minItems": 1
+            }
+        ],
+        "array-element-newline": [
+            "error",
+            {
+                "minItems": 1
+            }
+        ],
         "arrow-parens": [
             "error",
             "always"
@@ -27,7 +39,9 @@
             {
                 "devDependencies": [
                     "./*.js",
-                    "./tasks/**/*.js"
+                    "./.storybook/**/*.js",
+                    "./scripts/**/*.js",
+                    "./src/**/stories.js"
                 ]
             }
         ],
@@ -62,6 +76,18 @@
             {
                 "allowForLoopAfterthoughts": true
             }
+        ],
+        "no-underscore-dangle": [
+            0
+        ],
+        "object-curly-newline": [
+            "error",
+            {
+                "minProperties": 1
+            }
+        ],
+        "object-property-newline": [
+            "error"
         ],
         "react/jsx-curly-brace-presence": [
             "error",

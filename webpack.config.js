@@ -1,68 +1,49 @@
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const path = require('path');
+const webpack = require('webpack');
 
-const {
-    directories: {
-        srcDirectory
+module.exports = {
+    devServer: {
+        contentBase: './dist',
+        hot: true
     },
-    buildTypes: {
-        development,
-        production
+    entry: './src/index.js',
+    module: {
+        rules: [
+            {
+                exclude: /node_modules/,
+                test: /\.(js|jsx)$/,
+                use: [
+                    'babel-loader'
+                ]
+            },
+            {
+                test: /\.scss$/,
+                use: [
+                    {
+                        loader: 'style-loader'
+                    },
+                    {
+                        loader: 'css-loader'
+                    },
+                    {
+                        loader: 'sass-loader'
+                    }
+                ]
+            }
+        ]
     },
-    bundleName,
-    environmentalVariables: {
-        buildEnvironment
+    output: {
+        filename: 'index.js',
+        path: `${__dirname}/dist`,
+        publicPath: '/'
+    },
+    plugins: [
+        new webpack.HotModuleReplacementPlugin()
+    ],
+    resolve: {
+        extensions: [
+            '*',
+            '.js',
+            '.jsx'
+        ]
     }
-} = require('./gulp.config.js')();
-
-module.exports = () => {
-    const environment = process.env[buildEnvironment] === production ? production : development;
-    const isProduction = environment === production;
-
-    const plugins = [];
-
-    if (!isProduction) {
-        plugins.push(new HtmlWebpackPlugin({
-            template: `${srcDirectory}/index.html`
-        }));
-    }
-
-    return {
-        devServer: {},
-        devtool: !isProduction ? 'source-map' : '',
-        entry: [
-            `${srcDirectory}/index.js`
-        ],
-        mode: environment,
-        module: {
-            rules: [
-                {
-                    exclude: /node_modules/,
-                    test: /\.js$/,
-                    use: ['babel-loader']
-                },
-                {
-                    test: /\.scss$/,
-                    use: [
-                        {
-                            loader: 'style-loader'
-                        }, {
-                            loader: 'css-loader'
-                        }, {
-                            loader: 'sass-loader'
-                        }
-                    ]
-                }
-            ]
-        },
-        output: {
-            filename: `${bundleName}.js`,
-            path: path.resolve(__dirname, 'dist/')
-        },
-        plugins,
-        resolve: {
-            extensions: ['*', '.js', '.jsx']
-        },
-        watch: !isProduction
-    };
 };

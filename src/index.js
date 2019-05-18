@@ -1,9 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import Keyboard from './keyboard';
+import Key from './components/KeyComponent';
 
 ReactDOM.render(
-    <Keyboard />,
-    document.getElementById('keyboard')
+    <Key />,
+    document.getElementById('app')
 );
+
+module.hot.accept();
