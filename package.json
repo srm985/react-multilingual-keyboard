@@ -15,6 +15,15 @@
     "@babel/plugin-transform-runtime": "^7.4.4",
     "@babel/preset-env": "^7.4.4",
     "@babel/preset-react": "^7.0.0",
+    "@storybook/addon-actions": "^5.0.11",
+    "@storybook/addon-console": "^1.1.0",
+    "@storybook/addon-info": "^5.0.11",
+    "@storybook/addon-knobs": "^5.0.11",
+    "@storybook/addon-notes": "^5.0.11",
+    "@storybook/addon-viewport": "^5.0.11",
+    "@storybook/addons": "^5.0.11",
+    "@storybook/react": "^5.0.11",
+    "autoprefixer": "^9.5.1",
     "babel-eslint": "^10.0.1",
     "babel-loader": "^8.0.6",
     "babel-plugin-transform-es2017-object-entries": "0.0.5",
@@ -30,6 +39,8 @@
     "husky": "^2.3.0",
     "lint-staged": "^8.1.7",
     "node-sass": "^4.12.0",
+    "onchange": "^5.2.0",
+    "postcss-loader": "^3.0.0",
     "react-hot-loader": "^4.8.5",
     "sass-lint": "^1.13.1",
     "sass-loader": "^7.1.0",
@@ -75,13 +86,18 @@
     "url": "git+https://github.com/srm985/react-multilingual-keyboard.git"
   },
   "scripts": {
-    "build": "npm run lint && webpack --mode production",
-    "dev": "webpack-dev-server --config ./webpack.config.js --mode development --port 3000",
-    "fix": "eslint ./*.js src/**/*.js --fix",
+    "build": "npm run lint --silent && webpack --mode production",
+    "develop": "concurrently \"npm:lint --silent\" \"webpack-dev-server --config ./webpack.config.js --mode development --port 3000\" \"npm:watch --silent\"",
     "lint": "concurrently \"npm:lint:js --silent\" \"npm:lint:scss --silent\"",
-    "lint:js": "eslint ./*.js src/**/*.js --no-ignore",
+    "lint:fix": "eslint ./*.js src/**/*.js scripts/**/*.js .storybook/**/*.js --fix",
+    "lint:js": "eslint ./*.js src/**/*.js scripts/**/*.js .storybook/**/*.js --no-ignore",
     "lint:scss": "sass-lint -v -q src/**/*.scss",
-    "start": "npm run dev"
+    "start": "npm run develop",
+    "storybook": "start-storybook",
+    "storybook:build": "build-storybook -c .storybook -o storybook-dist",
+    "watch": "concurrently \"npm:watch:js --silent\" \"npm:watch:scss --silent\"",
+    "watch:js": "onchange \"src/**/*.js\" -- npm run lint:js --silent",
+    "watch:scss": "onchange \"src/**/*.scss\" -- npm run lint:scss --silent"
   },
   "version": "1.0.0"
 }
