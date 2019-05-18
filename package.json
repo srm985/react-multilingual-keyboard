@@ -19,12 +19,15 @@
     "babel-loader": "^8.0.6",
     "babel-plugin-transform-es2017-object-entries": "0.0.5",
     "concurrently": "^4.1.0",
+    "cross-env": "^5.2.0",
     "css-loader": "^2.1.1",
     "eslint": "^5.16.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-plugin-import": "^2.17.2",
     "eslint-plugin-jsx-a11y": "^6.2.1",
     "eslint-plugin-react": "^7.13.0",
+    "husky": "^2.3.0",
+    "lint-staged": "^8.1.7",
     "node-sass": "^4.12.0",
     "react-hot-loader": "^4.8.5",
     "sass-lint": "^1.13.1",
@@ -35,6 +38,12 @@
     "webpack-dev-server": "^3.4.1"
   },
   "homepage": "https://github.com/srm985/react-multilingual-keyboard#readme",
+  "husky": {
+    "hooks": {
+      "pre-commit": "cross-env FORCE_COLOR=true lint-staged",
+      "pre-push": "node ./scripts/branchCheck.js"
+    }
+  },
   "keywords": [
     "keyboard",
     "virtual",
@@ -48,7 +57,17 @@
     "language"
   ],
   "license": "MIT",
-  "main": "dist/keyboard.js",
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "git add"
+    ],
+    "*.scss": [
+      "sass-lint -v -q",
+      "git add"
+    ]
+  },
+  "main": "dist/index.js",
   "name": "react-multilingual-keyboard",
   "repository": {
     "type": "git",
@@ -60,7 +79,8 @@
     "fix": "eslint ./*.js src/**/*.js --fix",
     "lint": "concurrently \"npm:lint:js --silent\" \"npm:lint:scss --silent\"",
     "lint:js": "eslint ./*.js src/**/*.js --no-ignore",
-    "lint:scss": "sass-lint -v -q src/**/*.scss"
+    "lint:scss": "sass-lint -v -q src/**/*.scss",
+    "start": "npm run dev"
   },
   "version": "1.0.0"
 }
