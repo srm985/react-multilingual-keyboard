@@ -1,8 +1,21 @@
-$test: #f00;
+.KeyComponent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-p {
-    display: grid;
+    width: 40px;
+    height: 40px;
 
-    user-select: none;
-    transition: science 0.5s;
+    cursor: pointer;
+
+    border-radius: 5px;
+    background-color: gray;
+
+    &:hover {
+        transform: scale(1.05);
+    }
+
+    &__symbol {
+        color: white;
+    }
 }

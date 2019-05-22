@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import Key from './components/KeyComponent';
+import Keyboard from './keyboard';
 
 ReactDOM.render(
-    <Key />,
+    <Keyboard />,
     document.getElementById('app')
 );
 

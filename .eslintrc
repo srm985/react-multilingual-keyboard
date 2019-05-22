@@ -65,6 +65,9 @@
         "max-len": [
             0
         ],
+        "no-control-regex": [
+            0
+        ],
         "no-empty": [
             "error",
             {
