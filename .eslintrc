@@ -92,6 +92,10 @@
         "object-property-newline": [
             "error"
         ],
+        "quote-props": [
+            "error",
+            "consistent-as-needed"
+        ],
         "react/jsx-curly-brace-presence": [
             "error",
             {

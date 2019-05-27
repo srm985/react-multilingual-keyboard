@@ -1,0 +1,10 @@
+.RowComponent {
+    display: flex;
+    justify-content: space-between;
+
+    padding-bottom: 15px;
+
+    &:last-of-type {
+        padding-bottom: 0;
+    }
+}

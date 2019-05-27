@@ -19,6 +19,7 @@ const BRANCH_PREFIX_NAMES = [
     const currentBranchName = branchName();
 
     if (!branchRegex.test(currentBranchName)) {
+        // eslint-disable-next-line no-console
         console.error(`\nBranch naming convention must adhere to ${branchRegex}\n`);
 
         process.exit(1);
