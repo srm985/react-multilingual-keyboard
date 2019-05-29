@@ -94,7 +94,7 @@
     "lint:js": "eslint ./*.js src/**/*.js scripts/**/*.js .storybook/**/*.js",
     "lint:scss": "sass-lint -v -q src/**/*.scss",
     "start": "npm run develop",
-    "storybook": "start-storybook",
+    "storybook": "start-storybook -p 3100",
     "storybook:build": "build-storybook -c .storybook -o storybook-dist",
     "watch": "concurrently \"npm:watch:js --silent\" \"npm:watch:scss --silent\"",
     "watch:js": "onchange \"src/**/*.js\" -- npm run lint:js --silent",
