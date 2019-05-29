@@ -5,7 +5,7 @@ import Keyboard from './keyboard';
 
 ReactDOM.render(
     <Keyboard />,
-    document.getElementById('app')
+    document.getElementById('keyboard')
 );
 
 module.hot.accept();
