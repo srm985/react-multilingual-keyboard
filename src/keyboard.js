@@ -20,6 +20,7 @@ class Keyboard extends React.PureComponent {
 
         this.state = {
             deadkeyLookup: {},
+            isKeyboardShown: false,
             ligatureLookup: {},
             localeName: '',
             preparedKeyDataList: [],
@@ -31,6 +32,11 @@ class Keyboard extends React.PureComponent {
 
     componentDidMount() {
         this.parseKeyboardFile();
+        document.addEventListener('focusin', this.handleFocus);
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener('focusin', this.handleFocus);
     }
 
     parseKeyboardFile = () => {
@@ -213,6 +219,10 @@ class Keyboard extends React.PureComponent {
         });
     }
 
+    handleFocus = () => {
+        console.log('focused!');
+    }
+
     renderKeyboardKey = (keyData) => {
         const [
             keyLookupValue, , ,
@@ -357,12 +367,23 @@ class Keyboard extends React.PureComponent {
     }
 
     render() {
+        const {
+            isKeyboardShown
+        } = this.state;
+
         console.log('state:', this.state);
 
         return (
-            <div className={Keyboard.displayName}>
-                {this.renderKeyboardRows()}
-            </div>
+            <>
+                {
+                    isKeyboardShown
+                    && (
+                        <div className={Keyboard.displayName}>
+                            {this.renderKeyboardRows()}
+                        </div>
+                    )
+                }
+            </>
         );
     }
 }

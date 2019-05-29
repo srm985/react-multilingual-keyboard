@@ -88,7 +88,7 @@
   },
   "scripts": {
     "build": "cross-env NODE_ENV=production npm run lint --silent && webpack --mode production",
-    "develop": "cross-env NODE_ENV=development concurrently \"npm:lint --silent\" \"webpack-dev-server --config ./webpack.config.js --mode development --port 3000\" \"npm:watch --silent\"",
+    "develop": "cross-env NODE_ENV=development concurrently \"npm:lint --silent\" \"webpack-dev-server --open --config ./webpack.config.js --mode development --port 3000\" \"npm:watch --silent\"",
     "lint": "concurrently \"npm:lint:js --silent\" \"npm:lint:scss --silent\"",
     "lint:fix": "eslint ./*.js src/**/*.js scripts/**/*.js .storybook/**/*.js --fix",
     "lint:js": "eslint ./*.js src/**/*.js scripts/**/*.js .storybook/**/*.js",
