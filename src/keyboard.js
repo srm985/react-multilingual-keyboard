@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 
 import Key from './components/KeyComponent';
@@ -18,6 +19,8 @@ class Keyboard extends React.PureComponent {
     constructor(props) {
         super(props);
 
+        this.keyboardRef = React.createRef();
+
         this.state = {
             deadkeyLookup: {},
             isKeyboardShown: false,
@@ -31,12 +34,15 @@ class Keyboard extends React.PureComponent {
     }
 
     componentDidMount() {
-        this.parseKeyboardFile();
         document.addEventListener('focusin', this.handleFocus);
+        document.addEventListener('focusout', this.handleBlur);
+
+        this.parseKeyboardFile();
     }
 
     componentWillUnmount() {
         document.removeEventListener('focusin', this.handleFocus);
+        document.removeEventListener('focusout', this.handleBlur);
     }
 
     parseKeyboardFile = () => {
@@ -219,8 +225,32 @@ class Keyboard extends React.PureComponent {
         });
     }
 
-    handleFocus = () => {
-        console.log('focused!');
+    handleFocus = (event) => {
+        const {
+            triggeringInputTypesList
+        } = this.props;
+
+        const {
+            target: {
+                isContentEditable,
+                type: inputType
+            }
+        } = event;
+
+        const isKeyboardTriggeringField = triggeringInputTypesList.includes(inputType) || isContentEditable;
+
+        if (isKeyboardTriggeringField) {
+            this.setState({
+                isKeyboardShown: true
+            });
+        }
+    }
+
+    handleBlur = (event) => {
+        console.log(event);
+        /* this.setState({
+            isKeyboardShown: false
+        }); */
     }
 
     renderKeyboardKey = (keyData) => {
@@ -387,5 +417,23 @@ class Keyboard extends React.PureComponent {
         );
     }
 }
+
+Keyboard.propTypes = {
+    triggeringInputTypesList: PropTypes.shape([
+        PropTypes.string
+    ])
+};
+
+Keyboard.defaultProps = {
+    triggeringInputTypesList: [
+        'email',
+        'number',
+        'password',
+        'search',
+        'tel',
+        'text',
+        'url'
+    ]
+};
 
 export default Keyboard;

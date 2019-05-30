@@ -5,6 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>React Multilingual Keyboard</title>
+    <style>
+        section {
+            margin-top: 50px;
+            width: 100%;
+            border-top: solid 1px gray;
+        }
+
+        code {
+            padding: 2px 4px;
+            background-color: lightgray;
+            border-radius: 5px;
+        }
+
+        .positive {
+            color: green;
+            font-weight: bold;
+        }
+
+        .negative {
+            color: red;
+            font-weight: bold;
+        }
+
+        .input-types label {
+            margin-top: 40px;
+            display: block;
+        }
+
+        .input-types input {
+            width: 200px;
+            height: 35px;
+        }
+    </style>
 </head>
 
 <body>
@@ -54,6 +87,97 @@
     <br>
     <textarea>Text areas will be parsed into the keyboard input field as inputs, type=text.</textarea>
     <br>
+    <section class="input-types">
+        <h2>Here is a list of all input types and if the keyboard should trigger.</h2>
+        <label>
+            <p><code>button</code> <span class="negative">does not trigger keyboard</span></p>
+            <input type="button">
+        </label>
+        <label>
+            <p><code>checkbox</code> <span class="negative">does not trigger keyboard</span></p>
+            <input type="checkbox">
+        </label>
+        <label>
+            <p><code>color</code> <span class="negative">does not trigger keyboard</span></p>
+            <input type="color">
+        </label>
+        <label>
+            <p><code>date</code> <span class="negative">does not trigger keyboard</span></p>
+            <input type="date">
+        </label>
+        <label>
+            <p><code>datetime-local</code> <span class="negative">does not trigger keyboard</span></p>
+            <input type="datetime-local">
+        </label>
+        <label>
+            <p><code>email</code> <span class="positive">triggers keyboard</span></p>
+            <input type="email">
+        </label>
+        <label>
+            <p><code>file</code> <span class="negative">does not trigger keyboard</span></p>
+            <input type="file">
+        </label>
+        <label>
+            <p><code>hidden</code> <span class="negative">does not trigger keyboard</span></p>
+            <input type="hidden">
+        </label>
+        <label>
+            <p><code>image</code> <span class="negative">does not trigger keyboard</span></p>
+            <input type="image">
+        </label>
+        <label>
+            <p><code>month</code> <span class="negative">does not trigger keyboard</span></p>
+            <input type="month">
+        </label>
+        <label>
+            <p><code>number</code> <span class="positive">triggers keyboard</span></p>
+            <input type="number">
+        </label>
+        <label>
+            <p><code>password</code> <span class="positive">triggers keyboard</span></p>
+            <input type="password">
+        </label>
+        <label>
+            <p><code>radio</code> <span class="negative">does not trigger keyboard</span></p>
+            <input type="radio">
+        </label>
+        <label>
+            <p><code>range</code> <span class="negative">does not trigger keyboard</span></p>
+            <input type="range">
+        </label>
+        <label>
+            <p><code>reset</code> <span class="negative">does not trigger keyboard</span></p>
+            <input type="reset">
+        </label>
+        <label>
+            <p><code>search</code> <span class="positive">triggers keyboard</span></p>
+            <input type="search">
+        </label>
+        <label>
+            <p><code>submit</code> <span class="negative">does not trigger keyboard</span></p>
+            <input type="submit">
+        </label>
+        <label>
+            <p><code>tel</code> <span class="positive">triggers keyboard</span></p>
+            <input type="tel">
+        </label>
+        <label>
+            <p><code>text</code> <span class="positive">triggers keyboard</span></p>
+            <input type="text">
+        </label>
+        <label>
+            <p><code>time</code> <span class="negative">does not trigger keyboard</span></p>
+            <input type="time">
+        </label>
+        <label>
+            <p><code>url</code> <span class="positive">triggers keyboard</span></p>
+            <input type="url">
+        </label>
+        <label>
+            <p><code>week</code> <span class="negative">does not trigger keyboard</span></p>
+            <input type="week">
+        </label>
+    </section>
 </body>
 
 </html>
