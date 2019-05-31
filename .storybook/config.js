@@ -18,6 +18,7 @@ addDecorator(withKnobs);
 
 /* eslint-disable global-require */
 function loadStories() {
+    require('../src/components/ButtonComponent/stories');
     require('../src/components/KeyComponent/stories');
     require('../src/components/RowComponent/stories');
 }

@@ -3,8 +3,10 @@ import React from 'react';
 
 import Key from './components/KeyComponent';
 import Row from './components/RowComponent';
+import SubmissionArea from './components/SubmissionAreaComponent';
 
 import {
+    ESCAPE_KEY_CODE,
     KEYBOARD_MAP,
     RTL_LANGUAGES
 } from './config';
@@ -35,14 +37,14 @@ class Keyboard extends React.PureComponent {
 
     componentDidMount() {
         document.addEventListener('focusin', this.handleFocus);
-        document.addEventListener('focusout', this.handleBlur);
+        document.addEventListener('keydown', this.handleHardwareKeypress);
 
         this.parseKeyboardFile();
     }
 
     componentWillUnmount() {
         document.removeEventListener('focusin', this.handleFocus);
-        document.removeEventListener('focusout', this.handleBlur);
+        document.removeEventListener('keydown', this.handleHardwareKeypress);
     }
 
     parseKeyboardFile = () => {
@@ -246,11 +248,24 @@ class Keyboard extends React.PureComponent {
         }
     }
 
-    handleBlur = (event) => {
-        console.log(event);
-        /* this.setState({
-            isKeyboardShown: false
-        }); */
+    handleHardwareKeypress = (event) => {
+        const {
+            isKeyboardShown
+        } = this.state;
+
+        const {
+            keyCode
+        } = event;
+
+        if (isKeyboardShown) {
+            switch (keyCode) {
+                case ESCAPE_KEY_CODE:
+                    this.setState({
+                        isKeyboardShown: false
+                    });
+                    break;
+            }
+        }
     }
 
     renderKeyboardKey = (keyData) => {
@@ -409,6 +424,7 @@ class Keyboard extends React.PureComponent {
                     isKeyboardShown
                     && (
                         <div className={Keyboard.displayName}>
+                            <SubmissionArea />
                             {this.renderKeyboardRows()}
                         </div>
                     )

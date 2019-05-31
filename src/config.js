@@ -56,3 +56,11 @@ export const RTL_LANGUAGES = [
     'he-IL',
     'ur-PK'
 ];
+
+
+// Key Code Lookup
+export const CAPS_LOCK_KEY_CODE = 20;
+export const ENTER_KEY_CODE = 13;
+export const ESCAPE_KEY_CODE = 27;
+export const SHIFT_KEY_CODE = 16;
+export const TAB_KEY_CODE = 9;
