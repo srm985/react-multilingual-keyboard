@@ -1,0 +1,12 @@
+@import '../../styles/constants';
+
+.ButtonComponent {
+    width: 100px;
+    height: 35px;
+
+    cursor: pointer;
+
+    border: none;
+    border-radius: $border-radius-default;
+    outline: none;
+}

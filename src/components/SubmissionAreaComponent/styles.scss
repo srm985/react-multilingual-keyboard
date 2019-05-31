@@ -1,0 +1,20 @@
+@import '../../styles/constants';
+
+.SubmissionAreaComponent {
+    display: flex;
+    justify-content: space-between;
+
+    width: 100%;
+    margin-bottom: 20px;
+
+    &__input-field {
+        flex-grow: 1;
+
+        margin: 0 40px;
+        padding: 0 10px;
+
+        border: none;
+        border-radius: $border-radius-default;
+        outline: none;
+    }
+}
