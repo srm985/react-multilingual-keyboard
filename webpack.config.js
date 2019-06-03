@@ -6,7 +6,7 @@ module.exports = () => {
 
     const plugins = [];
 
-    let entry = './src/keyboard.js';
+    let entry = './src/components/KeyboardComponent/index.js';
 
     if (isDevelopment) {
         entry = './src/index.js';

@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import Keyboard from './keyboard';
+import Keyboard from './components/KeyboardComponent';
 
 ReactDOM.render(
     <Keyboard />,

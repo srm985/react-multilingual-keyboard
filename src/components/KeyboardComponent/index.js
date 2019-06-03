@@ -1,19 +1,20 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+import ReactDOM from 'react-dom';
 
-import Key from './components/KeyComponent';
-import Row from './components/RowComponent';
-import SubmissionArea from './components/SubmissionAreaComponent';
+import Key from '../KeyComponent';
+import Row from '../RowComponent';
+import SubmissionArea from '../SubmissionAreaComponent';
 
 import {
     ESCAPE_KEY_CODE,
     KEYBOARD_MAP,
     RTL_LANGUAGES
-} from './config';
+} from '../../config';
 
-import languageList from './languages';
+import languageList from '../../languages';
 
-import './styles/globalStyles.scss';
+import './styles.scss';
 
 class Keyboard extends React.PureComponent {
     static displayName = 'Keyboard';
@@ -21,10 +22,12 @@ class Keyboard extends React.PureComponent {
     constructor(props) {
         super(props);
 
-        this.keyboardRef = React.createRef();
+        this.submissionAreaReference = React.createRef();
 
         this.state = {
+            currentText: '',
             deadkeyLookup: {},
+            focusedField: {},
             isKeyboardShown: false,
             ligatureLookup: {},
             localeName: '',
@@ -37,14 +40,14 @@ class Keyboard extends React.PureComponent {
 
     componentDidMount() {
         document.addEventListener('focusin', this.handleFocus);
-        document.addEventListener('keydown', this.handleHardwareKeypress);
+        document.addEventListener('keydown', this.handleHardwareKeyPress);
 
         this.parseKeyboardFile();
     }
 
     componentWillUnmount() {
         document.removeEventListener('focusin', this.handleFocus);
-        document.removeEventListener('keydown', this.handleHardwareKeypress);
+        document.removeEventListener('keydown', this.handleHardwareKeyPress);
     }
 
     parseKeyboardFile = () => {
@@ -233,22 +236,49 @@ class Keyboard extends React.PureComponent {
         } = this.props;
 
         const {
+            target,
             target: {
+                disabled: isDisabled,
+                innerText: contentEditableValue = '',
                 isContentEditable,
-                type: inputType
+                max,
+                maxLength,
+                min,
+                placeholder,
+                readOnly: isReadOnly,
+                type: inputType,
+                value: fieldValue = ''
             }
         } = event;
 
-        const isKeyboardTriggeringField = triggeringInputTypesList.includes(inputType) || isContentEditable;
+        console.log({
+            target
+        });
 
+        const isInteractive = !isDisabled && !isReadOnly;
+
+        // Content editable fields require a separate check.
+        const isKeyboardTriggeringField = isInteractive
+            && (triggeringInputTypesList.includes(inputType)
+                || (isContentEditable && triggeringInputTypesList.includes('contenteditable')));
+
+        // We set the keyboard shown and store the value of the focused field.
         if (isKeyboardTriggeringField) {
             this.setState({
+                currentText: fieldValue || contentEditableValue,
+                focusedField: {
+                    max,
+                    maxLength,
+                    min,
+                    placeholder,
+                    target
+                },
                 isKeyboardShown: true
             });
         }
     }
 
-    handleHardwareKeypress = (event) => {
+    handleHardwareKeyPress = (event) => {
         const {
             isKeyboardShown
         } = this.state;
@@ -264,8 +294,114 @@ class Keyboard extends React.PureComponent {
                         isKeyboardShown: false
                     });
                     break;
+
+                // no default
             }
         }
+    }
+
+    handleKeyPress = (keyValue) => {
+        const HEX_REGEX = /^&#x([a-z0-9]{1,4});/;
+
+        const isHexCode = HEX_REGEX.test(keyValue);
+
+        const {
+            current: submissionAreaNode
+        } = this.submissionAreaReference;
+
+        const submissionAreaInputField = ReactDOM
+            .findDOMNode(submissionAreaNode)
+            .querySelector(`.${SubmissionArea.displayName}__input-field`);
+
+        const {
+            selectionEnd,
+            selectionStart
+        } = submissionAreaInputField;
+
+        const selectionLength = selectionEnd - selectionStart;
+
+        console.log('node:', selectionStart, selectionEnd);
+
+        let parsedValue = keyValue;
+
+        if (isHexCode) {
+            parsedValue = String.fromCharCode(`0x${(keyValue.match(HEX_REGEX)[1] || '').toString(16)}`);
+        }
+
+        console.log(keyValue);
+        this.setState((prevState) => {
+            const {
+                currentText: prevText
+            } = prevState;
+
+            // We insert wherever our caret is placed.
+            const newText = prevText.slice(0, selectionStart) + parsedValue + prevText.slice(selectionEnd);
+
+            return ({
+                currentText: newText
+            });
+        }, () => {
+            submissionAreaInputField.focus();
+            submissionAreaInputField.selectionStart = selectionStart - selectionLength + 1;
+            submissionAreaInputField.selectionEnd = selectionEnd - selectionLength + 1;
+        });
+    }
+
+    /**
+     * We leverage this function to support manual keyboard entry into our input field.
+     */
+    handleManualUpdate = (newTextValue) => {
+        this.setState({
+            currentText: newTextValue
+        });
+    }
+
+    handleAltGroupKeyPress = () => {
+
+    }
+
+    handleAltKeyPress = () => {
+
+    }
+
+    handleBackspaceKeyPress = () => {
+
+    }
+
+    handleCapsLockKeyPress = () => {
+
+    }
+
+    handleControlKeyPress = () => {
+
+    }
+
+    handleEnterKeyPress = () => {
+
+    }
+
+    handleLanguageKeyPress = () => {
+
+    }
+
+    handleShiftKeyPress = () => {
+
+    }
+
+    handleSpaceKeyPress = () => {
+
+    }
+
+    handleSpareKeyPress = () => {
+
+    }
+
+    handleSpareKeyPress = () => {
+
+    }
+
+    handleTabKeyPress = () => {
+
     }
 
     renderKeyboardKey = (keyData) => {
@@ -276,6 +412,7 @@ class Keyboard extends React.PureComponent {
 
         return (
             <Key
+                handleKeyPress={this.handleKeyPress}
                 key={keyLookupValue}
                 keySymbol={defaultKeySymbol}
             />
@@ -291,30 +428,37 @@ class Keyboard extends React.PureComponent {
         return (
             <Row>
                 <Key
+                    handleKeyPress={this.handleControlKeyPress}
                     keySymbol={'Ctrl'}
                     isAuxiliaryKey
                 />
                 <Key
+                    handleKeyPress={this.handleLanguageKeyPress}
                     keySymbol={selectedLanguage}
                     isAuxiliaryKey
                 />
                 <Key
+                    handleKeyPress={this.handleAltKeyPress}
                     keySymbol={'Alt'}
                     isAuxiliaryKey
                 />
                 <Key
                     flexGrow={4}
+                    handleKeyPress={this.handleSpaceKeyPress}
                     isAuxiliaryKey
                 />
                 <Key
+                    handleKeyPress={this.handleAltGroupKeyPress}
                     keySymbol={'Alt Grp'}
                     isAuxiliaryKey
                 />
                 <Key
+                    handleKeyPress={this.handleSpareKeyPress}
                     keySymbol={''}
                     isAuxiliaryKey
                 />
                 <Key
+                    handleKeyPress={this.handleControlKeyPress}
                     keySymbol={'Ctrl'}
                     isAuxiliaryKey
                 />
@@ -337,6 +481,7 @@ class Keyboard extends React.PureComponent {
         keysMarkupList1.push(
             <Key
                 flexGrow={4}
+                handleKeyPress={this.handleBackspaceKeyPress}
                 keySymbol={'Backspace'}
                 isAuxiliaryKey
             />
@@ -352,6 +497,7 @@ class Keyboard extends React.PureComponent {
         keysMarkupList2.unshift(
             <Key
                 flexGrow={4}
+                handleKeyPress={this.handleTabKeyPress}
                 keySymbol={'Tab'}
                 isAuxiliaryKey
             />
@@ -367,6 +513,7 @@ class Keyboard extends React.PureComponent {
         keysMarkupList3.unshift(
             <Key
                 flexGrow={5}
+                handleKeyPress={this.handleCapsLockKeyPress}
                 keySymbol={'Caps Lock'}
                 isAuxiliaryKey
             />
@@ -375,6 +522,7 @@ class Keyboard extends React.PureComponent {
         keysMarkupList3.push(
             <Key
                 flexGrow={5}
+                handleKeyPress={this.handleEnterKeyPress}
                 keySymbol={'Enter'}
                 isAuxiliaryKey
             />
@@ -390,6 +538,7 @@ class Keyboard extends React.PureComponent {
         keysMarkupList4.unshift(
             <Key
                 flexGrow={7}
+                handleKeyPress={this.handleShiftKeyPress}
                 keySymbol={'Shift'}
                 isAuxiliaryKey
             />
@@ -398,6 +547,7 @@ class Keyboard extends React.PureComponent {
         keysMarkupList4.push(
             <Key
                 flexGrow={7}
+                handleKeyPress={this.handleShiftKeyPress}
                 keySymbol={'Shift'}
                 isAuxiliaryKey
             />
@@ -413,7 +563,9 @@ class Keyboard extends React.PureComponent {
 
     render() {
         const {
-            isKeyboardShown
+            focusedField,
+            isKeyboardShown,
+            currentText
         } = this.state;
 
         console.log('state:', this.state);
@@ -424,7 +576,12 @@ class Keyboard extends React.PureComponent {
                     isKeyboardShown
                     && (
                         <div className={Keyboard.displayName}>
-                            <SubmissionArea />
+                            <SubmissionArea
+                                currentText={currentText}
+                                focusedField={focusedField}
+                                handleManualUpdate={this.handleManualUpdate}
+                                ref={this.submissionAreaReference}
+                            />
                             {this.renderKeyboardRows()}
                         </div>
                     )
@@ -435,19 +592,19 @@ class Keyboard extends React.PureComponent {
 }
 
 Keyboard.propTypes = {
-    triggeringInputTypesList: PropTypes.shape([
-        PropTypes.string
-    ])
+    triggeringInputTypesList: PropTypes.arrayOf(PropTypes.string)
 };
 
 Keyboard.defaultProps = {
     triggeringInputTypesList: [
+        'contenteditable',
         'email',
         'number',
         'password',
         'search',
         'tel',
         'text',
+        'textarea',
         'url'
     ]
 };

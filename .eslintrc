@@ -52,6 +52,9 @@
                 "SwitchCase": 1
             }
         ],
+        "jsx-a11y/no-autofocus": [
+            0
+        ],
         "linebreak-style": [
             0
         ],
@@ -90,7 +93,10 @@
             }
         ],
         "object-property-newline": [
-            "error"
+            "error",
+            {
+                "allowMultiplePropertiesPerLine": false
+            }
         ],
         "quote-props": [
             "error",
@@ -124,6 +130,9 @@
             0
         ],
         "react/no-did-update-set-state": [
+            0
+        ],
+        "react/no-find-dom-node": [
             0
         ],
         "react/no-unescaped-entities": [
