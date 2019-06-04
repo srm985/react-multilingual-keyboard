@@ -1,10 +1,15 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
+import {
+    TYPE_BUTTON
+} from './constants';
+
 import './styles.scss';
 
 const ButtonComponent = (props) => {
     const {
+        handleClick,
         label,
         type
     } = props;
@@ -13,6 +18,7 @@ const ButtonComponent = (props) => {
         // eslint-disable-next-line react/button-has-type
         <button
             className={ButtonComponent.displayName}
+            onClick={handleClick}
             type={type}
         >
             {label}
@@ -23,13 +29,15 @@ const ButtonComponent = (props) => {
 ButtonComponent.displayName = 'ButtonComponent';
 
 ButtonComponent.propTypes = {
+    handleClick: PropTypes.func,
     label: PropTypes.string,
     type: PropTypes.string
 };
 
 ButtonComponent.defaultProps = {
+    handleClick: () => { },
     label: '',
-    type: 'button'
+    type: TYPE_BUTTON
 };
 
 export default ButtonComponent;

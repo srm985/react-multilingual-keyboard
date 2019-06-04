@@ -3,6 +3,14 @@ import React from 'react';
 
 import Button from '../ButtonComponent';
 
+import {
+    TYPE_SUBMIT
+} from '../ButtonComponent/constants';
+import {
+    TYPE_PASSWORD,
+    TYPE_TEXT
+} from '../../config';
+
 import './styles.scss';
 
 class SubmissionAreaComponent extends React.PureComponent {
@@ -26,35 +34,64 @@ class SubmissionAreaComponent extends React.PureComponent {
         handleManualUpdate(inputText);
     }
 
+    handleSubmit = (event) => {
+        const {
+            handleInputSubmission
+        } = this.props;
+
+        event.preventDefault();
+
+        handleInputSubmission();
+    }
+
     render() {
         const {
             currentText,
             focusedField: {
-                max,
-                maxLength,
-                min,
-                placeholder,
-                target
-            }
+                inputType: focusedInputType,
+                max = '',
+                maxLength = '',
+                min = '',
+                pattern = '',
+                placeholder = ''
+            },
+            handleHideKeyboard
         } = this.props;
 
+        let inputType = TYPE_TEXT;
+
+        if (focusedInputType === TYPE_PASSWORD) {
+            inputType = TYPE_PASSWORD;
+        }
+
         return (
-            <div className={SubmissionAreaComponent.displayName}>
-                <Button label={'Cancel'} />
+            <form
+                className={SubmissionAreaComponent.displayName}
+                onSubmit={this.handleSubmit}
+                ref={this.formReference}
+            >
+                <Button
+                    handleClick={handleHideKeyboard}
+                    label={'Cancel'}
+                />
                 <input
                     autoFocus
                     className={`${SubmissionAreaComponent.displayName}__input-field`}
-                    max={max}
-                    maxLength={maxLength}
-                    min={min}
+                    max={max.length ? max : undefined}
+                    maxLength={maxLength.length ? maxLength : undefined}
+                    min={min.length ? min : undefined}
                     onChange={this.handleManualInput}
-                    placeholder={placeholder}
+                    pattern={pattern.length ? pattern : undefined}
+                    placeholder={placeholder.length ? placeholder : undefined}
                     ref={this.inputFieldReference}
-                    target={target}
+                    type={inputType}
                     value={currentText}
                 />
-                <Button label={'Submit'} />
-            </div>
+                <Button
+                    label={'Submit'}
+                    type={TYPE_SUBMIT}
+                />
+            </form>
         );
     }
 }
@@ -64,24 +101,30 @@ SubmissionAreaComponent.displayName = 'SubmissionAreaComponent';
 SubmissionAreaComponent.propTypes = {
     currentText: PropTypes.string,
     focusedField: PropTypes.shape({
+        inputType: PropTypes.string,
         max: PropTypes.string,
         maxLength: PropTypes.number,
         min: PropTypes.string,
-        placeholder: PropTypes.string,
-        target: PropTypes.instanceOf(Element)
+        pattern: PropTypes.string,
+        placeholder: PropTypes.string
     }),
+    handleHideKeyboard: PropTypes.func,
+    handleInputSubmission: PropTypes.func,
     handleManualUpdate: PropTypes.func
 };
 
 SubmissionAreaComponent.defaultProps = {
     currentText: '',
     focusedField: {
+        inputType: '',
         max: '',
         maxLength: '',
         min: '',
-        placeholder: '',
-        target: ''
+        pattern: '',
+        placeholder: ''
     },
+    handleHideKeyboard: () => { },
+    handleInputSubmission: () => { },
     handleManualUpdate: () => { }
 };
 

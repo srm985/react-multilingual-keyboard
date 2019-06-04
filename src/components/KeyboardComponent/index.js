@@ -9,7 +9,11 @@ import SubmissionArea from '../SubmissionAreaComponent';
 import {
     ESCAPE_KEY_CODE,
     KEYBOARD_MAP,
-    RTL_LANGUAGES
+    RTL_LANGUAGES,
+    SUPPORTED_TYPES,
+    TYPE_CONTENTEDITABLE,
+    TYPE_NUMBER,
+    SUBSTITUTE_NUMBER_REGEX
 } from '../../config';
 
 import languageList from '../../languages';
@@ -29,10 +33,13 @@ class Keyboard extends React.PureComponent {
             deadkeyLookup: {},
             focusedField: {},
             isKeyboardShown: false,
+            keyboardStatus: {
+                isUpperCase: false
+            },
             ligatureLookup: {},
             localeName: '',
             preparedKeyDataList: [],
-            selectedLanguage: 'hindi',
+            selectedLanguage: 'albanian',
             shiftStateLookup: {},
             textFlowDirection: 'RTL'
         };
@@ -230,12 +237,20 @@ class Keyboard extends React.PureComponent {
         });
     }
 
+    /**
+     * This function is called when a user focuses on any input field. When then
+     * perform a check to determine if we should trigger the keyboard for that
+     * given field.
+     */
     handleFocus = (event) => {
         const {
             triggeringInputTypesList
         } = this.props;
 
         const {
+            srcElement: {
+                className
+            },
             target,
             target: {
                 disabled: isDisabled,
@@ -244,6 +259,7 @@ class Keyboard extends React.PureComponent {
                 max,
                 maxLength,
                 min,
+                pattern,
                 placeholder,
                 readOnly: isReadOnly,
                 type: inputType,
@@ -251,25 +267,28 @@ class Keyboard extends React.PureComponent {
             }
         } = event;
 
-        console.log({
-            target
-        });
+        const submissionAreaInputFieldClass = `${SubmissionArea.displayName}__input-field`;
 
-        const isInteractive = !isDisabled && !isReadOnly;
+        // We prevent recording a focus event on our own input field.
+        const isSubmissionAreaInputField = className === submissionAreaInputFieldClass;
+
+        const isInteractive = !isDisabled && !isReadOnly && !isSubmissionAreaInputField;
 
         // Content editable fields require a separate check.
         const isKeyboardTriggeringField = isInteractive
             && (triggeringInputTypesList.includes(inputType)
-                || (isContentEditable && triggeringInputTypesList.includes('contenteditable')));
+                || (isContentEditable && triggeringInputTypesList.includes(TYPE_CONTENTEDITABLE)));
 
         // We set the keyboard shown and store the value of the focused field.
         if (isKeyboardTriggeringField) {
             this.setState({
                 currentText: fieldValue || contentEditableValue,
                 focusedField: {
+                    inputType: isContentEditable ? TYPE_CONTENTEDITABLE : inputType,
                     max,
                     maxLength,
                     min,
+                    pattern,
                     placeholder,
                     target
                 },
@@ -301,6 +320,13 @@ class Keyboard extends React.PureComponent {
     }
 
     handleKeyPress = (keyValue) => {
+        const {
+            currentText,
+            keyboardStatus: {
+                isUpperCase
+            }
+        } = this.state;
+
         const HEX_REGEX = /^&#x([a-z0-9]{1,4});/;
 
         const isHexCode = HEX_REGEX.test(keyValue);
@@ -320,7 +346,23 @@ class Keyboard extends React.PureComponent {
 
         const selectionLength = selectionEnd - selectionStart;
 
-        console.log('node:', selectionStart, selectionEnd);
+        const isValidText = (proposedText) => {
+            const {
+                focusedField: {
+                    inputType,
+                    max,
+                    maxLength,
+                    min
+                }
+            } = this.state;
+
+            const isAboveMinNumber = !min || Number.isNaN(proposedText) || Number(proposedText) >= min;
+            const isValidNumber = inputType !== TYPE_NUMBER || (inputType === TYPE_NUMBER && SUBSTITUTE_NUMBER_REGEX.test(proposedText));
+            const isWithinMaxLength = !maxLength || maxLength < 0 || proposedText.length <= maxLength;
+            const isWithinMaxNumber = !max || Number.isNaN(proposedText) || Number(proposedText) <= max;
+
+            return isAboveMinNumber && isValidNumber && isWithinMaxLength && isWithinMaxNumber;
+        };
 
         let parsedValue = keyValue;
 
@@ -328,22 +370,21 @@ class Keyboard extends React.PureComponent {
             parsedValue = String.fromCharCode(`0x${(keyValue.match(HEX_REGEX)[1] || '').toString(16)}`);
         }
 
-        console.log(keyValue);
-        this.setState((prevState) => {
-            const {
-                currentText: prevText
-            } = prevState;
+        parsedValue = isUpperCase ? parsedValue.toUpperCase() : parsedValue;
 
-            // We insert wherever our caret is placed.
-            const newText = prevText.slice(0, selectionStart) + parsedValue + prevText.slice(selectionEnd);
+        // We insert wherever our caret is placed.
+        const newText = currentText.slice(0, selectionStart) + parsedValue + currentText.slice(selectionEnd);
 
-            return ({
-                currentText: newText
-            });
-        }, () => {
+        const canUpdateText = isValidText(newText);
+
+        this.setState(({
+            currentText: canUpdateText ? newText : currentText
+        }), () => {
+            const selectionOffset = canUpdateText ? selectionLength - 1 : 0;
+
             submissionAreaInputField.focus();
-            submissionAreaInputField.selectionStart = selectionStart - selectionLength + 1;
-            submissionAreaInputField.selectionEnd = selectionEnd - selectionLength + 1;
+            submissionAreaInputField.selectionStart = selectionStart - selectionOffset;
+            submissionAreaInputField.selectionEnd = selectionEnd - selectionOffset;
         });
     }
 
@@ -369,7 +410,21 @@ class Keyboard extends React.PureComponent {
     }
 
     handleCapsLockKeyPress = () => {
+        this.setState((prevState) => {
+            const {
+                keyboardStatus,
+                keyboardStatus: {
+                    isUpperCase: wasUpperCase
+                }
+            } = prevState;
 
+            return ({
+                keyboardStatus: {
+                    ...keyboardStatus,
+                    isUpperCase: !wasUpperCase
+                }
+            });
+        });
     }
 
     handleControlKeyPress = () => {
@@ -396,15 +451,41 @@ class Keyboard extends React.PureComponent {
 
     }
 
-    handleSpareKeyPress = () => {
-
-    }
-
     handleTabKeyPress = () => {
 
     }
 
+    handleHideKeyboard = () => {
+        this.setState({
+            isKeyboardShown: false
+        });
+    }
+
+    handleInputSubmission = () => {
+        const {
+            currentText,
+            focusedField: {
+                inputType,
+                target
+            }
+        } = this.state;
+
+        if (inputType === TYPE_CONTENTEDITABLE) {
+            target.innerText = currentText;
+        } else {
+            target.value = currentText;
+        }
+
+        this.handleHideKeyboard();
+    }
+
     renderKeyboardKey = (keyData) => {
+        const {
+            keyboardStatus: {
+                isUpperCase
+            }
+        } = this.state;
+
         const [
             keyLookupValue, , ,
             defaultKeySymbol
@@ -413,6 +494,7 @@ class Keyboard extends React.PureComponent {
         return (
             <Key
                 handleKeyPress={this.handleKeyPress}
+                isUpperCase={isUpperCase}
                 key={keyLookupValue}
                 keySymbol={defaultKeySymbol}
             />
@@ -579,6 +661,8 @@ class Keyboard extends React.PureComponent {
                             <SubmissionArea
                                 currentText={currentText}
                                 focusedField={focusedField}
+                                handleHideKeyboard={this.handleHideKeyboard}
+                                handleInputSubmission={this.handleInputSubmission}
                                 handleManualUpdate={this.handleManualUpdate}
                                 ref={this.submissionAreaReference}
                             />
@@ -597,15 +681,7 @@ Keyboard.propTypes = {
 
 Keyboard.defaultProps = {
     triggeringInputTypesList: [
-        'contenteditable',
-        'email',
-        'number',
-        'password',
-        'search',
-        'tel',
-        'text',
-        'textarea',
-        'url'
+        ...SUPPORTED_TYPES
     ]
 };
 

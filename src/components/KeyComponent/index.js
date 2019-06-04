@@ -9,12 +9,15 @@ class KeyComponent extends React.PureComponent {
             flexGrow,
             handleKeyPress,
             isAuxiliaryKey,
+            isUpperCase,
             keySymbol
         } = this.props;
 
         const keyStyles = {
-            flexGrow
+            flexGrow,
+            textTransform: isUpperCase ? 'uppercase' : 'lowercase'
         };
+
 
         let preparedKeySymbol = '';
 
@@ -52,6 +55,7 @@ KeyComponent.propTypes = {
     flexGrow: PropTypes.number,
     handleKeyPress: PropTypes.func,
     isAuxiliaryKey: PropTypes.bool,
+    isUpperCase: PropTypes.bool,
     keySymbol: PropTypes.string
 };
 
@@ -59,6 +63,7 @@ KeyComponent.defaultProps = {
     flexGrow: 1,
     handleKeyPress: () => { },
     isAuxiliaryKey: false,
+    isUpperCase: false,
     keySymbol: ''
 };
 

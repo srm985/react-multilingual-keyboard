@@ -64,3 +64,30 @@ export const ENTER_KEY_CODE = 13;
 export const ESCAPE_KEY_CODE = 27;
 export const SHIFT_KEY_CODE = 16;
 export const TAB_KEY_CODE = 9;
+
+// Input Types
+export const TYPE_CONTENTEDITABLE = 'contenteditable';
+export const TYPE_EMAIL = 'email';
+export const TYPE_NUMBER = 'number';
+export const TYPE_PASSWORD = 'password';
+export const TYPE_SEARCH = 'search';
+export const TYPE_TEL = 'tel';
+export const TYPE_TEXT = 'text';
+export const TYPE_TEXTAREA = 'textarea';
+export const TYPE_URL = 'url';
+
+export const SUPPORTED_TYPES = [
+    TYPE_CONTENTEDITABLE,
+    TYPE_EMAIL,
+    TYPE_NUMBER,
+    TYPE_PASSWORD,
+    TYPE_SEARCH,
+    TYPE_TEL,
+    TYPE_TEXT,
+    TYPE_TEXTAREA,
+    TYPE_URL
+];
+
+
+// This regex mimics the default HTML input type="number".
+export const SUBSTITUTE_NUMBER_REGEX = /^(-)?(((\d+)|(\d+\.(\d+)?)|(\.(\d+)?))([eE]([-+])?(\d+)?)?)?$/;
