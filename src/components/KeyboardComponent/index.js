@@ -34,12 +34,13 @@ class Keyboard extends React.PureComponent {
             focusedField: {},
             isKeyboardShown: false,
             keyboardStatus: {
+                isShiftKeySet: false,
                 isUpperCase: false
             },
             ligatureLookup: {},
             localeName: '',
             preparedKeyDataList: [],
-            selectedLanguage: 'albanian',
+            selectedLanguage: 'spanish',
             shiftStateLookup: {},
             textFlowDirection: 'RTL'
         };
@@ -367,9 +368,12 @@ class Keyboard extends React.PureComponent {
         let parsedValue = keyValue;
 
         if (isHexCode) {
-            parsedValue = String.fromCharCode(`0x${(keyValue.match(HEX_REGEX)[1] || '').toString(16)}`);
+            const symbolHexCode = `0x${(keyValue.match(HEX_REGEX)[1] || '').toString(16)}`;
+
+            parsedValue = String.fromCharCode(symbolHexCode);
         }
 
+        // Check if we should be capitalizing our symbol.
         parsedValue = isUpperCase ? parsedValue.toUpperCase() : parsedValue;
 
         // We insert wherever our caret is placed.
@@ -380,7 +384,7 @@ class Keyboard extends React.PureComponent {
         this.setState(({
             currentText: canUpdateText ? newText : currentText
         }), () => {
-            const selectionOffset = canUpdateText ? selectionLength - 1 : 0;
+            const selectionOffset = canUpdateText ? selectionLength - parsedValue.length : 0;
 
             submissionAreaInputField.focus();
             submissionAreaInputField.selectionStart = selectionStart - selectionOffset;
@@ -398,7 +402,21 @@ class Keyboard extends React.PureComponent {
     }
 
     handleAltGroupKeyPress = () => {
+        this.setState((prevState) => {
+            const {
+                keyboardStatus,
+                keyboardStatus: {
+                    isAltGrpKeySet: wasAltGrpKeySet
+                }
+            } = prevState;
 
+            return ({
+                keyboardStatus: {
+                    ...keyboardStatus,
+                    isAltGrpKeySet: !wasAltGrpKeySet
+                }
+            });
+        });
     }
 
     handleAltKeyPress = () => {
@@ -428,7 +446,21 @@ class Keyboard extends React.PureComponent {
     }
 
     handleControlKeyPress = () => {
+        this.setState((prevState) => {
+            const {
+                keyboardStatus,
+                keyboardStatus: {
+                    isControlKeySet: wasControlKeySet
+                }
+            } = prevState;
 
+            return ({
+                keyboardStatus: {
+                    ...keyboardStatus,
+                    isControlKeySet: !wasControlKeySet
+                }
+            });
+        });
     }
 
     handleEnterKeyPress = () => {
@@ -440,7 +472,21 @@ class Keyboard extends React.PureComponent {
     }
 
     handleShiftKeyPress = () => {
+        this.setState((prevState) => {
+            const {
+                keyboardStatus,
+                keyboardStatus: {
+                    isShiftKeySet: wasShiftKeySet
+                }
+            } = prevState;
 
+            return ({
+                keyboardStatus: {
+                    ...keyboardStatus,
+                    isShiftKeySet: !wasShiftKeySet
+                }
+            });
+        });
     }
 
     handleSpaceKeyPress = () => {
@@ -482,21 +528,43 @@ class Keyboard extends React.PureComponent {
     renderKeyboardKey = (keyData) => {
         const {
             keyboardStatus: {
-                isUpperCase
+                isShiftKeySet,
+                isUpperCase,
+                isControlKeySet,
+                isAltGrpKeySet
             }
         } = this.state;
 
         const [
             keyLookupValue, , ,
-            defaultKeySymbol
+            defaultKeySymbol,
+            shiftKeySymbol,
+            controlKeySymbol,
+            altGrpKeySymbol
         ] = keyData;
+
+        let keySymbol = defaultKeySymbol;
+
+        // Determine which key symbol to use.
+        if (isShiftKeySet) {
+            keySymbol = shiftKeySymbol;
+        } else if (isControlKeySet) {
+            keySymbol = controlKeySymbol;
+        } else if (isAltGrpKeySet) {
+            keySymbol = altGrpKeySymbol;
+        }
+
+        // For some keys, an @ symbol is appended and needs to be stripped.
+        if (keySymbol.length === 5 && (/@/).test(keySymbol)) {
+            keySymbol = keySymbol.replace('@', '');
+        }
 
         return (
             <Key
                 handleKeyPress={this.handleKeyPress}
                 isUpperCase={isUpperCase}
                 key={keyLookupValue}
-                keySymbol={defaultKeySymbol}
+                keySymbol={keySymbol}
             />
         );
     }

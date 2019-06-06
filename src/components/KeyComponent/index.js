@@ -15,7 +15,7 @@ class KeyComponent extends React.PureComponent {
 
         const keyStyles = {
             flexGrow,
-            textTransform: isUpperCase ? 'uppercase' : 'lowercase'
+            textTransform: isUpperCase ? 'uppercase' : undefined
         };
 
 
