@@ -34,6 +34,8 @@ class Keyboard extends React.PureComponent {
             focusedField: {},
             isKeyboardShown: false,
             keyboardStatus: {
+                isAltGrpKeySet: false,
+                isControlKeySet: false,
                 isShiftKeySet: false,
                 isUpperCase: false
             },
@@ -323,6 +325,7 @@ class Keyboard extends React.PureComponent {
     handleKeyPress = (keyValue) => {
         const {
             currentText,
+            keyboardStatus,
             keyboardStatus: {
                 isUpperCase
             }
@@ -382,7 +385,14 @@ class Keyboard extends React.PureComponent {
         const canUpdateText = isValidText(newText);
 
         this.setState(({
-            currentText: canUpdateText ? newText : currentText
+            currentText: canUpdateText ? newText : currentText,
+            keyboardStatus: {
+                ...keyboardStatus,
+                // Clear key states which only last one key press duration.
+                isAltGrpKeySet: false,
+                isControlKeySet: false,
+                isShiftKeySet: false
+            }
         }), () => {
             const selectionOffset = canUpdateText ? selectionLength - parsedValue.length : 0;
 
@@ -413,7 +423,9 @@ class Keyboard extends React.PureComponent {
             return ({
                 keyboardStatus: {
                     ...keyboardStatus,
-                    isAltGrpKeySet: !wasAltGrpKeySet
+                    isAltGrpKeySet: !wasAltGrpKeySet,
+                    isControlKeySet: false,
+                    isShiftKeySet: false
                 }
             });
         });
@@ -457,7 +469,9 @@ class Keyboard extends React.PureComponent {
             return ({
                 keyboardStatus: {
                     ...keyboardStatus,
-                    isControlKeySet: !wasControlKeySet
+                    isAltGrpKeySet: false,
+                    isControlKeySet: !wasControlKeySet,
+                    isShiftKeySet: false
                 }
             });
         });
@@ -483,6 +497,8 @@ class Keyboard extends React.PureComponent {
             return ({
                 keyboardStatus: {
                     ...keyboardStatus,
+                    isAltGrpKeySet: false,
+                    isControlKeySet: false,
                     isShiftKeySet: !wasShiftKeySet
                 }
             });

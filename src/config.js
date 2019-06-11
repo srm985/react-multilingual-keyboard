@@ -1,4 +1,6 @@
 /* eslint-disable sort-keys */
+
+// This defines our mapping of the klc file to keyboard layout.
 export const KEYBOARD_MAP = {
     '29': 0,
     '02': 1,
@@ -50,6 +52,7 @@ export const KEYBOARD_MAP = {
 };
 /* eslint-enable sort-keys */
 
+// Languages known to proceed right to left.
 export const RTL_LANGUAGES = [
     'ar-SA',
     'fa-IR',
