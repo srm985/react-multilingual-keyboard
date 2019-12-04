@@ -41,8 +41,9 @@ class Keyboard extends React.PureComponent {
             },
             ligatureLookup: {},
             localeName: '',
+            pendingDeadkey: '',
             preparedKeyDataList: [],
-            selectedLanguage: 'spanish',
+            selectedLanguage: 'hindi',
             shiftStateLookup: {},
             textFlowDirection: 'RTL'
         };
@@ -62,8 +63,10 @@ class Keyboard extends React.PureComponent {
 
     parseKeyboardFile = () => {
         const {
-            selectedLanguage
-        } = this.state;
+            state: {
+                selectedLanguage
+            }
+        } = this;
 
         const BLANK_SPACE_CHARACTER_REGEX = new RegExp('\\u0000', 'g');
         const KEY_DATA_REGEX = new RegExp('\\d(\\w)?\\s+\\w+\\s+\\d\\s+(-1|\\w+@?|%%)\\s+(-1|\\w+@?|%%)\\s+(-1|\\w+@?|%%)(\\s+(-1|\\w+@?|%%))?(\\s+(-1|\\w+@?|%%))?(\\s+(-1|\\w+@?|%%))?\\s+\\/\\/', 'g');
@@ -302,8 +305,10 @@ class Keyboard extends React.PureComponent {
 
     handleHardwareKeyPress = (event) => {
         const {
-            isKeyboardShown
-        } = this.state;
+            state: {
+                isKeyboardShown
+            }
+        } = this;
 
         const {
             keyCode
@@ -324,12 +329,15 @@ class Keyboard extends React.PureComponent {
 
     handleKeyPress = (keyValue) => {
         const {
-            currentText,
-            keyboardStatus,
-            keyboardStatus: {
-                isUpperCase
+            state: {
+                currentText,
+                deadkeyLookup,
+                keyboardStatus,
+                keyboardStatus: {
+                    isUpperCase
+                }
             }
-        } = this.state;
+        } = this;
 
         const HEX_REGEX = /^&#x([a-z0-9]{1,4});/;
 
@@ -350,15 +358,23 @@ class Keyboard extends React.PureComponent {
 
         const selectionLength = selectionEnd - selectionStart;
 
+        const generateCharacter = (keyValueCode) => {
+            const symbolHexCode = `0x${(keyValueCode).toString(16)}`;
+
+            return String.fromCharCode(symbolHexCode);
+        };
+
         const isValidText = (proposedText) => {
             const {
-                focusedField: {
-                    inputType,
-                    max,
-                    maxLength,
-                    min
+                state: {
+                    focusedField: {
+                        inputType,
+                        max,
+                        maxLength,
+                        min
+                    }
                 }
-            } = this.state;
+            } = this;
 
             const isAboveMinNumber = !min || Number.isNaN(proposedText) || Number(proposedText) >= min;
             const isValidNumber = inputType !== TYPE_NUMBER || (inputType === TYPE_NUMBER && SUBSTITUTE_NUMBER_REGEX.test(proposedText));
@@ -368,6 +384,43 @@ class Keyboard extends React.PureComponent {
             return isAboveMinNumber && isValidNumber && isWithinMaxLength && isWithinMaxNumber;
         };
 
+        const renderedDeadkey = (currentKeyValue) => {
+            const {
+                state: {
+                    pendingDeadkey
+                }
+            } = this;
+
+            const deadkeyHexValue = `00${currentKeyValue.charCodeAt(0).toString(16)}`;
+            const isDeadkeyTrigger = !!deadkeyLookup[deadkeyHexValue];
+
+            const isNewDeadkey = pendingDeadkey && isDeadkeyTrigger;
+
+            let generatedString = currentKeyValue;
+
+            this.setState({
+                pendingDeadkey: isDeadkeyTrigger && !isNewDeadkey ? deadkeyHexValue : ''
+            });
+
+            if (isNewDeadkey) {
+                generatedString = generateCharacter(pendingDeadkey) + generateCharacter(deadkeyHexValue);
+            } else if (isDeadkeyTrigger && !isNewDeadkey) {
+                // Don't write anything on press of the first deadkey trigger.
+                generatedString = '';
+            } else if (!isDeadkeyTrigger && pendingDeadkey) {
+                // Check if we have a deadkey combination.
+                const {
+                    [pendingDeadkey]: {
+                        [deadkeyHexValue]: deadkeyCombinationCode
+                    } = {}
+                } = deadkeyLookup;
+
+                generatedString = deadkeyCombinationCode ? generateCharacter(deadkeyCombinationCode) : generateCharacter(pendingDeadkey) + generateCharacter(deadkeyHexValue);
+            }
+
+            return generatedString;
+        };
+
         let parsedValue = keyValue;
 
         if (isHexCode) {
@@ -375,6 +428,9 @@ class Keyboard extends React.PureComponent {
 
             parsedValue = String.fromCharCode(symbolHexCode);
         }
+
+        // Modify parsedValue if interacting with deadkeys.
+        parsedValue = renderedDeadkey(parsedValue);
 
         // Check if we should be capitalizing our symbol.
         parsedValue = isUpperCase ? parsedValue.toUpperCase() : parsedValue;
@@ -525,12 +581,14 @@ class Keyboard extends React.PureComponent {
 
     handleInputSubmission = () => {
         const {
-            currentText,
-            focusedField: {
-                inputType,
-                target
+            state: {
+                currentText,
+                focusedField: {
+                    inputType,
+                    target
+                }
             }
-        } = this.state;
+        } = this;
 
         if (inputType === TYPE_CONTENTEDITABLE) {
             target.innerText = currentText;
@@ -543,20 +601,26 @@ class Keyboard extends React.PureComponent {
 
     renderKeyboardKey = (keyData) => {
         const {
-            keyboardStatus: {
-                isShiftKeySet,
-                isUpperCase,
-                isControlKeySet,
-                isAltGrpKeySet
+            state: {
+                keyboardStatus: {
+                    isShiftKeySet,
+                    isUpperCase,
+                    isControlKeySet,
+                    isAltGrpKeySet
+                }
             }
-        } = this.state;
+        } = this;
+
+        console.log({
+            keyData
+        });
 
         const [
-            keyLookupValue, , ,
-            defaultKeySymbol,
-            shiftKeySymbol,
-            controlKeySymbol,
-            altGrpKeySymbol
+            keyLookupValue = '', , ,
+            defaultKeySymbol = '',
+            shiftKeySymbol = '',
+            controlKeySymbol = '',
+            altGrpKeySymbol = ''
         ] = keyData;
 
         let keySymbol = defaultKeySymbol;
@@ -569,6 +633,8 @@ class Keyboard extends React.PureComponent {
         } else if (isAltGrpKeySet) {
             keySymbol = altGrpKeySymbol;
         }
+
+        console.log(1);
 
         // For some keys, an @ symbol is appended and needs to be stripped.
         if (keySymbol.length === 5 && (/@/).test(keySymbol)) {
@@ -587,8 +653,10 @@ class Keyboard extends React.PureComponent {
 
     renderControlsRow = () => {
         const {
-            selectedLanguage
-        } = this.state;
+            state: {
+                selectedLanguage
+            }
+        } = this;
 
 
         return (
@@ -634,8 +702,10 @@ class Keyboard extends React.PureComponent {
 
     renderKeyboardRows = () => {
         const {
-            preparedKeyDataList
-        } = this.state;
+            state: {
+                preparedKeyDataList
+            }
+        } = this;
 
         const keyboardRowsMarkupList = [];
 
@@ -729,10 +799,12 @@ class Keyboard extends React.PureComponent {
 
     render() {
         const {
-            focusedField,
-            isKeyboardShown,
-            currentText
-        } = this.state;
+            state: {
+                focusedField,
+                isKeyboardShown,
+                currentText
+            }
+        } = this;
 
         console.log('state:', this.state);
 
