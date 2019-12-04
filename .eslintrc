@@ -77,6 +77,12 @@
                 "allowEmptyCatch": true
             }
         ],
+        "no-multiple-empty-lines": [
+            "error",
+            {
+                "max": 1
+            }
+        ],
         "no-plusplus": [
             "error",
             {

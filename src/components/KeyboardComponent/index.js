@@ -611,10 +611,6 @@ class Keyboard extends React.PureComponent {
             }
         } = this;
 
-        console.log({
-            keyData
-        });
-
         const [
             keyLookupValue = '', , ,
             defaultKeySymbol = '',
@@ -633,8 +629,6 @@ class Keyboard extends React.PureComponent {
         } else if (isAltGrpKeySet) {
             keySymbol = altGrpKeySymbol;
         }
-
-        console.log(1);
 
         // For some keys, an @ symbol is appended and needs to be stripped.
         if (keySymbol.length === 5 && (/@/).test(keySymbol)) {
@@ -657,7 +651,6 @@ class Keyboard extends React.PureComponent {
                 selectedLanguage
             }
         } = this;
-
 
         return (
             <Row>

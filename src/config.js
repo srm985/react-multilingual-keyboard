@@ -60,7 +60,6 @@ export const RTL_LANGUAGES = [
     'ur-PK'
 ];
 
-
 // Key Code Lookup
 export const CAPS_LOCK_KEY_CODE = 20;
 export const ENTER_KEY_CODE = 13;
@@ -90,7 +89,6 @@ export const SUPPORTED_TYPES = [
     TYPE_TEXTAREA,
     TYPE_URL
 ];
-
 
 // This regex mimics the default HTML input type="number".
 export const SUBSTITUTE_NUMBER_REGEX = /^(-)?(((\d+)|(\d+\.(\d+)?)|(\.(\d+)?))([eE]([-+])?(\d+)?)?)?$/;
