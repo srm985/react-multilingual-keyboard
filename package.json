@@ -39,7 +39,7 @@
     "html-webpack-plugin": "^3.2.0",
     "husky": "^2.3.0",
     "lint-staged": "^8.1.7",
-    "node-sass": "^4.12.0",
+    "node-sass": "^4.13.1",
     "onchange": "^5.2.0",
     "postcss-loader": "^3.0.0",
     "react-hot-loader": "^4.8.5",
